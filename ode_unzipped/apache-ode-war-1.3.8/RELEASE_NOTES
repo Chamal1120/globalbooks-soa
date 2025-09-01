@@ -1,0 +1,49 @@
+========================
+Apache ODE Release Notes
+========================
+
+Apache ODE 1.3.8 includes about 10 bug fixes and improvements.
+
+Apache ODE 1.3.8 requires Java 1.8.x or higher. The WAR distribution can 
+run in most J2EE servlet containers. See the BUILDING file if you
+want to build your own distribution from the source release.
+
+The most notable improvements:
+  - Minimum binary compatibility to JDK 8
+  - Upgraded to JPA 2 complaint from JPA 1
+    - With Hibernate 4.3.11 and OpenJPA 2.4.2
+  - Upgraded to Axis2 1.7.6
+  - Upgraded to TOMEE 7.0.4
+  - Upgraded to TOMCAT 8.5.28
+
+Changes:
+------- 
+
+Release Notes - ODE - Version 1.3.8
+
+** Sub-task
+
+   * [ODE-1068] - Upgrade Hibernate
+
+** Bug
+
+   * [ODE-716] - NullPointerException when binding message parts to SOAP header
+   * [ODE-1066] - Unstable work of compensation activity
+   * [ODE-1067] - Decommission JBI Development and Support
+
+** Improvement
+
+   * [ODE-602] - invocation fails if urlReplacement and form encoded used
+   * [ODE-1042] - Move towards JPA 2
+   * [ODE-1069] - Upgrade ODE Server to TOMEE 7.0.4
+   * [ODE-1070] - Upgrade to Axis2 1.7.6
+   * [ODE-1071] - Move towards binary compatibility to JDK 8
+
+** Wish
+
+   * [ODE-1043] - Move towards binary compatibility to JDK 7
+
+
+See our Jira for more information:
+---------------------------------
+https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12310270&version=12332764
