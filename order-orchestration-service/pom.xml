@@ -30,6 +30,15 @@
             <groupId>org.springframework.integration</groupId>
             <artifactId>spring-integration-core</artifactId>
         </dependency>
+        <!-- SOAP Web Services -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web-services</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>wsdl4j</groupId>
+            <artifactId>wsdl4j</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
