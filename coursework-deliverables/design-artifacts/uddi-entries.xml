@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- UDDI Registry Entries for GlobalBooks SOA Services -->
+
+<uddi:business_entities xmlns:uddi="urn:uddi-org:api_v3">
+  
+  <!-- GlobalBooks Catalog Service -->
+  <uddi:businessEntity businessKey="uuid:globalbooks-catalog-service">
+    <uddi:name>GlobalBooks Catalog Service</uddi:name>
+    <uddi:description>
+      SOAP-based product catalog service providing book information, 
+      inventory management, and search capabilities for GlobalBooks Inc.
+    </uddi:description>
+    
+    <uddi:businessServices>
+      <uddi:businessService serviceKey="uuid:catalog-soap-service">
+        <uddi:name>Catalog SOAP Service</uddi:name>
+        <uddi:description>
+          Contract-first SOAP service for catalog operations including
+          book lookup, inventory check, and catalog management.
+        </uddi:description>
+        
+        <uddi:bindingTemplates>
+          <uddi:bindingTemplate bindingKey="uuid:catalog-soap-binding">
+            <uddi:description>SOAP Binding for Catalog Service</uddi:description>
+            <uddi:accessPoint URLType="http">
+              http://localhost:8085/ws/catalog
+            </uddi:accessPoint>
+            
+            <uddi:tModelInstanceDetails>
+              <uddi:tModelInstanceInfo tModelKey="uuid:catalog-wsdl">
+                <uddi:description>WSDL Definition</uddi:description>
+                <uddi:instanceDetails>
+                  <uddi:overviewDoc>
+                    <uddi:overviewURL>
+                      http://localhost:8085/ws/catalog.wsdl
+                    </uddi:overviewURL>
+                  </uddi:overviewDoc>
+                </uddi:instanceDetails>
+              </uddi:tModelInstanceInfo>
+            </uddi:tModelInstanceDetails>
+          </uddi:bindingTemplate>
+        </uddi:bindingTemplates>
+        
+        <uddi:categoryBag>
+          <uddi:keyedReference 
+            tModelKey="uuid:catalog-service-type"
+            keyName="ServiceType" 
+            keyValue="Catalog"/>
+          <uddi:keyedReference 
+            tModelKey="uuid:protocol-type"
+            keyName="Protocol" 
+            keyValue="SOAP"/>
+        </uddi:categoryBag>
+      </uddi:businessService>
+    </uddi:businessServices>
+  </uddi:businessEntity>
+
+  <!-- GlobalBooks Orders Service -->
+  <uddi:businessEntity businessKey="uuid:globalbooks-orders-service">
+    <uddi:name>GlobalBooks Orders Service</uddi:name>
+    <uddi:description>
+      RESTful order management service handling order lifecycle,
+      order creation, tracking, and management for GlobalBooks Inc.
+    </uddi:description>
+    
+    <uddi:businessServices>
+      <uddi:businessService serviceKey="uuid:orders-rest-service">
+        <uddi:name>Orders REST API</uddi:name>
+        <uddi:description>
+          REST API for order management operations including
+          order creation, retrieval, updates, and order tracking.
+        </uddi:description>
+        
+        <uddi:bindingTemplates>
+          <uddi:bindingTemplate bindingKey="uuid:orders-rest-binding">
+            <uddi:description>REST Binding for Orders Service</uddi:description>
+            <uddi:accessPoint URLType="http">
+              http://localhost:8082/orders
+            </uddi:accessPoint>
+            
+            <uddi:tModelInstanceDetails>
+              <uddi:tModelInstanceInfo tModelKey="uuid:orders-openapi">
+                <uddi:description>OpenAPI Specification</uddi:description>
+                <uddi:instanceDetails>
+                  <uddi:overviewDoc>
+                    <uddi:overviewURL>
+                      http://localhost:8082/api-docs
+                    </uddi:overviewURL>
+                  </uddi:overviewDoc>
+                </uddi:instanceDetails>
+              </uddi:tModelInstanceInfo>
+            </uddi:tModelInstanceDetails>
+          </uddi:bindingTemplate>
+        </uddi:bindingTemplates>
+        
+        <uddi:categoryBag>
+          <uddi:keyedReference 
+            tModelKey="uuid:orders-service-type"
+            keyName="ServiceType" 
+            keyValue="Orders"/>
+          <uddi:keyedReference 
+            tModelKey="uuid:protocol-type"
+            keyName="Protocol" 
+            keyValue="REST"/>
+        </uddi:categoryBag>
+      </uddi:businessService>
+    </uddi:businessServices>
+  </uddi:businessEntity>
+
+  <!-- GlobalBooks Authentication Service -->
+  <uddi:businessEntity businessKey="uuid:globalbooks-auth-service">
+    <uddi:name>GlobalBooks Authentication Service</uddi:name>
+    <uddi:description>
+      JWT-based authentication service providing user authentication,
+      token generation, and security validation for GlobalBooks platform.
+    </uddi:description>
+    
+    <uddi:businessServices>
+      <uddi:businessService serviceKey="uuid:auth-rest-service">
+        <uddi:name>Authentication REST API</uddi:name>
+        <uddi:description>
+          REST API for authentication operations including
+          user login, token generation, and token validation.
+        </uddi:description>
+        
+        <uddi:bindingTemplates>
+          <uddi:bindingTemplate bindingKey="uuid:auth-rest-binding">
+            <uddi:description>REST Binding for Auth Service</uddi:description>
+            <uddi:accessPoint URLType="http">
+              http://localhost:8081/authenticate
+            </uddi:accessPoint>
+          </uddi:bindingTemplate>
+        </uddi:bindingTemplates>
+        
+        <uddi:categoryBag>
+          <uddi:keyedReference 
+            tModelKey="uuid:auth-service-type"
+            keyName="ServiceType" 
+            keyValue="Authentication"/>
+          <uddi:keyedReference 
+            tModelKey="uuid:protocol-type"
+            keyName="Protocol" 
+            keyValue="REST"/>
+        </uddi:categoryBag>
+      </uddi:businessService>
+    </uddi:businessServices>
+  </uddi:businessEntity>
+
+  <!-- GlobalBooks Order Orchestration Service -->
+  <uddi:businessEntity businessKey="uuid:globalbooks-orchestration-service">
+    <uddi:name>GlobalBooks Order Orchestration Service</uddi:name>
+    <uddi:description>
+      Business process orchestration service coordinating complex
+      order workflows across multiple services using Spring Integration.
+    </uddi:description>
+    
+    <uddi:businessServices>
+      <uddi:businessService serviceKey="uuid:orchestration-rest-service">
+        <uddi:name>Order Orchestration API</uddi:name>
+        <uddi:description>
+          REST API for orchestrated business processes including
+          complete order processing workflows and service composition.
+        </uddi:description>
+        
+        <uddi:bindingTemplates>
+          <uddi:bindingTemplate bindingKey="uuid:orchestration-rest-binding">
+            <uddi:description>REST Binding for Orchestration Service</uddi:description>
+            <uddi:accessPoint URLType="http">
+              http://localhost:8086/api/orchestration
+            </uddi:accessPoint>
+          </uddi:bindingTemplate>
+        </uddi:bindingTemplates>
+        
+        <uddi:categoryBag>
+          <uddi:keyedReference 
+            tModelKey="uuid:orchestration-service-type"
+            keyName="ServiceType" 
+            keyValue="Orchestration"/>
+          <uddi:keyedReference 
+            tModelKey="uuid:protocol-type"
+            keyName="Protocol" 
+            keyValue="REST"/>
+        </uddi:categoryBag>
+      </uddi:businessService>
+    </uddi:businessServices>
+  </uddi:businessEntity>
+
+</uddi:business_entities>

@@ -2,7 +2,7 @@
 
 A comprehensive **Service-Oriented Architecture (SOA)** implementation for an online bookstore system, demonstrating modern microservices patterns with both REST and SOAP web services.
 
-[![Java](https://img.shields.io/badge/Java-8-orange.svg)](https://www.oracle.com/java/)
+[![Java](https://img.shields.io/badge/Java-1.8-orange.svg)](https://www.oracle.com/java/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-2.7.17-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![Spring WS](https://img.shields.io/badge/Spring%20WS-SOAP-blue.svg)](https://spring.io/projects/spring-ws)
 [![RabbitMQ](https://img.shields.io/badge/RabbitMQ-3.9-orange.svg)](https://www.rabbitmq.com/)
@@ -128,7 +128,7 @@ graph TB
 
 | Software | Version | Required | Notes |
 |----------|---------|----------|-------|
-| **Java JDK** | 8+ | ✅ **Required** | Oracle JDK or OpenJDK |
+| **Java JDK** | 1.8+ | ✅ **Required** | Oracle JDK or OpenJDK |
 | **Apache Maven** | 3.6+ | ✅ **Required** | For building and dependency management |
 | **Docker** | 20.0+ | ✅ **Required** | For RabbitMQ message broker |
 | **Docker Compose** | 1.29+ | ✅ **Required** | For orchestrating containers |
@@ -266,8 +266,7 @@ curl -X POST http://localhost:8086/ws \
 ## 📚 Documentation
 
 ### **API Reference**
-- **[📋 Complete API Documentation](other-guides/api-endpoints.md)** - Comprehensive REST and SOAP endpoint reference
-- **[🔄 Order Processing Walkthrough](other-guides/order-process-walkthrough.md)** - Step-by-step order flow documentation
+- **[📋 Complete API Documentation](API-ENDPOINTS.md)** - Comprehensive REST and SOAP endpoint reference
 - **[🧪 Test Suite Documentation](tests/README.md)** - Testing guide and automated test scripts
 
 ### **WSDL Documents**
@@ -329,7 +328,7 @@ mvn clean compile -pl catalog-service
 - **Startup Time**: ~30-45 seconds for all services
 - **Memory Usage**: ~150-200MB per service
 - **Throughput**: 100+ concurrent requests per service
-- **Response Time**: <200ms for standard operations
+- **Response Time**: <500ms for standard operations
 
 ### **Scalability Features**
 - Stateless service design for horizontal scaling
