@@ -18,25 +18,13 @@ M C R Mallawaarachchi | 22ug1-0093 | SOA and Microservices - CCS3341
 
 This report details the architectural decisions, implementation specifics, and operational considerations for decomposing the GlobalBooks monolith into a Service-Oriented Architecture (SOA).
 
-== System Architecture Sketches
+== System Architecture Sketch
 
-// Architecture diagram placeholder - image to be inserted
 #figure(
   box(
-    width: 100%,
-    height: 150pt,
-    fill: gray.lighten(90%),
-    stroke: 1pt,
-    inset: 20pt,
-    [
-      #align(center)[
-        #text(size: 14pt, weight: "bold")[Architecture Diagram]
-        #v(10pt)
-        #text(size: 12pt, style: "italic")[
-          [Architecture diagram image will be inserted here]
-        ]
-      ]
-    ]
+    fill: white,
+    inset: 10pt,
+    image("images/design-sketch.png", width: 100%)
   ),
   caption: "GlobalBooks SOA Architecture Overview"
 )
