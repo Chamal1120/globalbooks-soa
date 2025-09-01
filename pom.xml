@@ -23,6 +23,7 @@
         <module>shipping-service</module>
         <module>rest-gateway</module>
         <module>catalog-service</module>
+        <module>order-orchestration-service</module>
     </modules>
 
     <dependencyManagement>

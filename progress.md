@@ -108,4 +108,4 @@ The `rest-gateway` has been implemented to act as a single entry point for all t
 
 ## Next Steps
 
-All the basic services and the `rest-gateway` are now implemented. The next phase of development will be to implement the business process orchestration using Apache ODE.
+orchestration.

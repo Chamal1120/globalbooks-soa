@@ -31,6 +31,13 @@ public class BookRepository {
         book3.setTitle("1984");
         book3.setAuthor("George Orwell");
         books.put(book3.getId(), book3);
+        
+        // Add the test book with ISBN
+        Book book4 = new Book();
+        book4.setId("978-0134685991");
+        book4.setTitle("Clean Code");
+        book4.setAuthor("Robert C. Martin");
+        books.put(book4.getId(), book4);
     }
 
     public Book findBookById(String id) {

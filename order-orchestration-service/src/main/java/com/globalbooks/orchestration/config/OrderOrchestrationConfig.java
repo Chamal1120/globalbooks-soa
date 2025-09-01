@@ -20,8 +20,7 @@ import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
 import org.springframework.integration.handler.LoggingHandler;
 import org.springframework.messaging.MessageChannel;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.oxm.jaxb.Jaxb2Marshaller;
+import org.springframework.web.client.RestTemplate;
 
  @Configuration @EnableIntegration
 public class OrderOrchestrationConfig {
@@ -53,47 +52,65 @@ public class OrderOrchestrationConfig {
         return new Jackson2JsonMessageConverter();
     }
 
-    
+    @Bean
+    public AmqpOutboundEndpoint orderOutbound(AmqpTemplate amqpTemplate) {
+        return Amqp.outboundAdapter(amqpTemplate)
+                .routingKey("order.queue")
+                .get();
+    }
 
     @Bean
     public AmqpOutboundEndpoint paymentOutbound(AmqpTemplate amqpTemplate) {
         return Amqp.outboundAdapter(amqpTemplate)
-                .routingKey("payment.process")
+                .routingKey("payment.queue")
                 .get();
     }
 
     @Bean
     public AmqpOutboundEndpoint shippingOutbound(AmqpTemplate amqpTemplate) {
         return Amqp.outboundAdapter(amqpTemplate)
-                .routingKey("shipping.initiate")
+                .routingKey("shipping.queue")
                 .get();
     }
 
-    // Declare queues
+    // Declare all necessary queues
     @Bean
-    public Queue paymentProcessQueue() {
-        return new Queue("payment.process", true);
+    public Queue orderQueue() {
+        return new Queue("order.queue", true);
     }
 
     @Bean
-    public Queue shippingInitiateQueue() {
-        return new Queue("shipping.initiate", true);
-    }
-
-    // Separate flows for async processing
-    @Bean
-    public IntegrationFlow paymentFlow(AmqpTemplate amqpTemplate) {
-        return IntegrationFlows.from(paymentChannel())
-                .log(LoggingHandler.Level.INFO, "payment", m -> m.getPayload().toString())
-                .handle(paymentOutbound(amqpTemplate))
-                .get();
+    public Queue paymentQueue() {
+        return new Queue("payment.queue", true);
     }
 
     @Bean
-    public IntegrationFlow shippingFlow(AmqpTemplate amqpTemplate) {
-        return IntegrationFlows.from(shippingChannel())
-                .log(LoggingHandler.Level.INFO, "shipping", m -> m.getPayload())
-                .handle(shippingOutbound(amqpTemplate))
+    public Queue shippingQueue() {
+        return new Queue("shipping.queue", true);
+    }
+
+    @Bean
+    public Queue paymentConfirmQueue() {
+        return new Queue("paymentconfirm.queue", true);
+    }
+
+    @Bean
+    public Queue shippingConfirmQueue() {
+        return new Queue("shippingconfirm.queue", true);
+    }
+
+    // Add a channel for order queue
+    @Bean
+    public MessageChannel orderChannel() {
+        return new DirectChannel();
+    }
+
+    // Order flow - send to order.queue
+    @Bean
+    public IntegrationFlow orderFlow(AmqpTemplate amqpTemplate) {
+        return IntegrationFlows.from(orderChannel())
+                .log(LoggingHandler.Level.INFO, "order", m -> "Sending to order.queue: " + m.getPayload())
+                .handle(orderOutbound(amqpTemplate))
                 .get();
     }
 
@@ -105,67 +122,27 @@ public class OrderOrchestrationConfig {
                 .nullChannel();
     }
 
-    // Main order processing flow
+    // Main order processing flow - simplified to just enrich and send to order.queue
     @Bean
     public IntegrationFlow orderProcessingFlow(
-            AuthenticationService authenticationService,
             CatalogService catalogService,
-            OrderService orderService,
-            OrderConfirmationService orderConfirmationService,
-            AmqpOutboundEndpoint paymentOutbound,
-            AmqpOutboundEndpoint shippingOutbound) {
+            AmqpOutboundEndpoint orderOutbound) {
         
         return IntegrationFlows
                 .from(orderInputChannel())
-                .log(LoggingHandler.Level.INFO, "order", m -> "Starting order processing: " + m.getPayload())
+                .log(LoggingHandler.Level.INFO, "orchestration", m -> "Starting order processing: " + m.getPayload())
 
-                // Step 1: Validate Authentication
-                .handle(authenticationService, "validateToken")
-                .log(LoggingHandler.Level.INFO, "auth", m -> "Authentication validated")
-
-                // Step 2: Check Book Availability (SOAP Call)
+                // Step 1: Check Book Availability and enrich with book details (SOAP Call)
                 .handle(catalogService, "checkAvailability")
-                .log(LoggingHandler.Level.INFO, "catalog", m -> "Book availability checked")
+                .log(LoggingHandler.Level.INFO, "catalog", m -> "Book availability checked and enriched")
 
-                // Step 3: Create Order
-                .handle(orderService, "createOrder")
-                .log(LoggingHandler.Level.INFO, "order", m -> "Order created: " + m.getPayload())
-
-                // Step 4: Send to async channels
-                .wireTap(flow -> flow
-                    .enrichHeaders(h -> h.header("processType", "payment"))
-                    .channel(paymentChannel()))
-                .wireTap(flow -> flow
-                    .enrichHeaders(h -> h.header("processType", "shipping"))
-                    .channel(shippingChannel()))
-
-                // Step 5: Return confirmation immediately
-                .handle(orderConfirmationService, "generateConfirmation")
-                .log(LoggingHandler.Level.INFO, "confirmation", m -> "Order confirmation generated: " + m.getPayload())
-                // ...existing code...
+                // Step 2: Send enriched order to order.queue
+                .channel(orderChannel())
                 .get();
     }
 
     @Bean
-    public WebClient webClient() {
-        return WebClient.builder()
-                .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(1024 * 1024)) // 1MB buffer
-                .build();
-    }
-
-    @Bean
-    public Jaxb2Marshaller marshaller() {
-        Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
-        marshaller.setContextPath("com.globalbooks.orchestration.generated");
-        return marshaller;
-    }
-
-    @Bean
-    public com.globalbooks.orchestration.client.CatalogClient catalogClient(Jaxb2Marshaller marshaller) {
-        com.globalbooks.orchestration.client.CatalogClient client = new com.globalbooks.orchestration.client.CatalogClient();
-        client.setDefaultUri("http://localhost:8085/ws"); // URL of the catalog-service SOAP endpoint
-        client.setMarshaller(marshaller);
-        client.setUnmarshaller(marshaller);
-        return client;
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
     }
 }
