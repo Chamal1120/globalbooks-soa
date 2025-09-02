@@ -32,3 +32,6 @@ target/
 
 #editors
 .vscode/
+
+# Generated JAXB classes
+**/generated/
