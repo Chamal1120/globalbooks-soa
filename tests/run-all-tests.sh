@@ -31,6 +31,11 @@ if [ ! -f "$SCRIPT_DIR/test-3-soap-order.sh" ]; then
     exit 1
 fi
 
+if [ ! -f "$SCRIPT_DIR/test-4-catalog-service.sh" ]; then
+    echo "❌ Error: test-4-catalog-service.sh not found"
+    exit 1
+fi
+
 echo "✅ All test scripts found"
 echo
 
@@ -80,6 +85,23 @@ else
 fi
 echo
 
+# Wait between tests
+echo "⏳ Waiting 3 seconds before next test..."
+sleep 3
+echo
+
+# Test 4: Catalog Service Direct Testing
+echo "🔵 Starting Test 4: Catalog Service Direct Testing"
+echo "================================================"
+if "$SCRIPT_DIR/test-4-catalog-service.sh"; then
+    echo "✅ Test 4 Passed: Catalog Service Direct Testing"
+    TEST4_RESULT="PASSED"
+else
+    echo "❌ Test 4 Failed: Catalog Service Direct Testing"
+    TEST4_RESULT="FAILED"
+fi
+echo
+
 # Final Results Summary
 echo "================================================"
 echo "📊 FINAL TEST RESULTS SUMMARY"
@@ -90,10 +112,11 @@ echo "Test Results:"
 echo "   1. User Creation & Auth:    $TEST1_RESULT"
 echo "   2. REST Order Processing:   $TEST2_RESULT"
 echo "   3. SOAP Order Processing:   $TEST3_RESULT"
+echo "   4. Catalog Service Direct:  $TEST4_RESULT"
 echo
 
 # Overall result
-if [ "$TEST1_RESULT" = "PASSED" ] && [ "$TEST2_RESULT" = "PASSED" ] && [ "$TEST3_RESULT" = "PASSED" ]; then
+if [ "$TEST1_RESULT" = "PASSED" ] && [ "$TEST2_RESULT" = "PASSED" ] && [ "$TEST3_RESULT" = "PASSED" ] && [ "$TEST4_RESULT" = "PASSED" ]; then
     echo "🎉 ALL TESTS PASSED - SOA SYSTEM FULLY FUNCTIONAL!"
     echo
     echo "✅ System Capabilities Validated:"
@@ -101,6 +124,8 @@ if [ "$TEST1_RESULT" = "PASSED" ] && [ "$TEST2_RESULT" = "PASSED" ] && [ "$TEST3
     echo "   • JWT token generation and validation"
     echo "   • REST API order processing"
     echo "   • SOAP web service order processing"
+    echo "   • Direct catalog service REST API"
+    echo "   • Direct catalog service SOAP web service"
     echo "   • Microservices orchestration"
     echo "   • Queue-based asynchronous processing"
     echo

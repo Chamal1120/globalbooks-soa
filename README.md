@@ -1,6 +1,4 @@
-# 📚 GlobalBooks SOA
-
-A comprehensive **Service-Oriented Architecture (SOA)** implementation for an online bookstore system, demonstrating modern microservices patterns with both REST and SOAP web services.
+# 📚 GlobalBooks
 
 [![Java](https://img.shields.io/badge/Java-8-orange.svg)](https://www.oracle.com/java/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-2.7.17-brightgreen.svg)](https://spring.io/projects/spring-boot)
@@ -15,71 +13,59 @@ GlobalBooks SOA implements a distributed microservices architecture with the fol
 ```mermaid
 %%{init: {'theme':'base', 'themeVariables': {'primaryColor':'#ffffff', 'primaryTextColor':'#000000', 'primaryBorderColor':'#cccccc', 'lineColor':'#333333', 'sectionBkgColor':'#ffffff', 'altSectionBkgColor':'#f9f9f9', 'gridColor':'#e0e0e0', 'tertiaryColor':'#ffffff', 'background':'#ffffff', 'mainBkg':'#ffffff'}}}%%
 graph TB
-    %% Client Layer
-    WEB[🌐 Web Clients] 
-    SOAP[📋 SOAP Clients] 
-    MOBILE[📱 Mobile Apps]
-    
-    %% API Gateway Layer
-    subgraph GATEWAY["🚪 API Gateway Layer"]
-        REST_GW[🔗 REST Gateway<br/>Port 8080]
-        SOAP_EP[🔌 SOAP Endpoints<br/>Ports 8085, 8086]
+    %% Main Container
+    subgraph MAIN["📚 GlobalBooks SOA Architecture"]
+        %% Core Services Layer
+        subgraph CORE["🏢 Core Services Layer"]
+            AUTH[🔐 Auth Service<br/>Port 8081<br/>User Management & JWT]
+            ORCHESTRATION[🎯 Order Orchestration<br/>Port 8086<br/>REST + SOAP]
+        end
+        
+        %% Business Services Layer  
+        subgraph BUSINESS["💼 Business Services Layer"]
+            CATALOG[📚 Catalog Service<br/>Port 8085<br/>REST + SOAP]
+            ORDERS[📋 Orders Service<br/>Port 8082<br/>Order Management]
+            PAYMENTS[💳 Payments Service<br/>Port 8083<br/>Payment Processing]
+            SHIPPING[📦 Shipping Service<br/>Port 8084<br/>Logistics]
+        end
+        
+        %% Infrastructure Layer
+        subgraph INFRA["🔧 Infrastructure Layer"]
+            RABBITMQ[🐰 RabbitMQ<br/>Port 5672<br/>Message Broker]
+        end
+        
+        %% Client to Core Services Connections
+        REST --> AUTH
+        REST -.->|with JWT| ORCHESTRATION
+        REST --> CATALOG
+        SOAP --> ORCHESTRATION
+        SOAP --> CATALOG
+        
+        %% Core Service Interactions
+        AUTH -.->|JWT Validation| ORCHESTRATION
+        ORCHESTRATION --> CATALOG
+        ORCHESTRATION --> ORDERS
+        ORCHESTRATION --> PAYMENTS  
+        ORCHESTRATION --> SHIPPING
+        
+        %% Message Broker Connections
+        ORDERS --> RABBITMQ
+        PAYMENTS --> RABBITMQ
+        SHIPPING --> RABBITMQ
+        ORCHESTRATION --> RABBITMQ
     end
     
-    %% Core Services Layer
-    subgraph CORE["🏢 Core Services"]
-        AUTH[🔐 Auth Service<br/>Port 8081<br/>JWT Authentication]
-        ORCHESTRATION[🎯 Order Orchestration<br/>Port 8086<br/>REST + SOAP]
-        CATALOG[📚 Catalog Service<br/>Port 8085<br/>REST + SOAP]
-    end
-    
-    %% Business Services Layer  
-    subgraph BUSINESS["💼 Business Services"]
-        ORDERS[📋 Orders Service<br/>Port 8082<br/>Order Management]
-        PAYMENTS[💳 Payments Service<br/>Port 8083<br/>Payment Processing]
-        SHIPPING[📦 Shipping Service<br/>Port 8084<br/>Logistics]
-    end
-    
-    %% Infrastructure Layer
-    subgraph INFRA["🔧 Infrastructure"]
-        RABBITMQ[🐰 RabbitMQ<br/>Port 5672<br/>Message Broker]
-    end
-    
-    %% Client Connections
-    WEB --> REST_GW
-    MOBILE --> REST_GW
-    SOAP --> SOAP_EP
-    
-    %% Gateway to Core Services
-    REST_GW --> AUTH
-    REST_GW --> ORCHESTRATION
-    SOAP_EP --> CATALOG
-    SOAP_EP --> ORCHESTRATION
-    
-    %% Core Service Interactions
-    AUTH -.->|JWT Validation| ORCHESTRATION
-    ORCHESTRATION --> CATALOG
-    ORCHESTRATION --> ORDERS
-    ORCHESTRATION --> PAYMENTS  
-    ORCHESTRATION --> SHIPPING
-    
-    %% Message Broker Connections
-    ORDERS --> RABBITMQ
-    PAYMENTS --> RABBITMQ
-    SHIPPING --> RABBITMQ
-    ORCHESTRATION --> RABBITMQ
-    
-    %% Styling with enhanced contrast and light background
+    %% Styling with layered structure
+    classDef mainStyle fill:#f8f9fa,stroke:#495057,stroke-width:3px,color:#000000
     classDef clientStyle fill:#e3f2fd,stroke:#1976d2,stroke-width:2px,color:#000000
-    classDef gatewayStyle fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000000
     classDef coreStyle fill:#e8f5e8,stroke:#388e3c,stroke-width:2px,color:#000000
     classDef businessStyle fill:#fff8e1,stroke:#f57c00,stroke-width:2px,color:#000000
     classDef infraStyle fill:#fce4ec,stroke:#c2185b,stroke-width:2px,color:#000000
     
-    class WEB,SOAP,MOBILE clientStyle
-    class REST_GW,SOAP_EP gatewayStyle
-    class AUTH,ORCHESTRATION,CATALOG coreStyle
-    class ORDERS,PAYMENTS,SHIPPING businessStyle
+    class MAIN mainStyle
+    class REST,SOAP clientStyle
+    class AUTH,ORCHESTRATION coreStyle
+    class CATALOG,ORDERS,PAYMENTS,SHIPPING businessStyle
     class RABBITMQ infraStyle
 ```
 
@@ -120,7 +106,6 @@ graph TB
 | **Shipping Service** | 8084 | REST | Shipment tracking and logistics management |
 | **Catalog Service** | 8085 | REST + SOAP | Book catalog and inventory management |
 | **Order Orchestration** | 8086 | REST + SOAP | Business process orchestration and workflows |
-| **REST Gateway** | 8080 | REST | API gateway and request routing |
 
 ## 📋 Prerequisites
 
@@ -175,7 +160,7 @@ ls -la */target/*.jar
 
 ### 4. **Start All Services**
 
-Open **7 separate terminals** and run each service:
+Open **6 separate terminals** and run each service:
 
 ```bash
 # Terminal 1: Auth Server
@@ -195,9 +180,6 @@ mvn spring-boot:run -pl catalog-service -Dspring-boot.run.arguments=--server.por
 
 # Terminal 6: Order Orchestration (REST + SOAP)
 mvn spring-boot:run -pl order-orchestration-service -Dspring-boot.run.arguments=--server.port=8086
-
-# Terminal 7: REST Gateway (Optional)
-mvn spring-boot:run -pl rest-gateway -Dspring-boot.run.arguments=--server.port=8080
 ```
 
 ### 5. **Verify Services are Running**
