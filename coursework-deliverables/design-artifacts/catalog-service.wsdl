@@ -3,6 +3,8 @@
              xmlns:tns="http://globalbooks.com/catalog"
              xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
              xmlns:xs="http://www.w3.org/2001/XMLSchema"
+             xmlns:wsp="http://www.w3.org/ns/ws-policy"
+             xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"
              targetNamespace="http://globalbooks.com/catalog"
              elementFormDefault="qualified">
 
@@ -53,6 +55,8 @@
   <binding name="BooksPortSoap11" type="tns:BooksPort">
     <soap:binding style="document" 
                   transport="http://schemas.xmlsoap.org/soap/http"/>
+    <!-- WS-Security Policy: Username Token Required -->
+    <wsp:PolicyReference URI="#UsernameTokenPolicy"/>
     <operation name="getBookDetails">
       <soap:operation soapAction=""/>
       <input><soap:body use="literal"/></input>
@@ -60,10 +64,20 @@
     </operation>
   </binding>
 
+  <!-- WS-Security Policy Definition -->
+  <wsp:Policy wsu:Id="UsernameTokenPolicy" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
+    <wsse:SecurityToken>
+      <wsse:UsernameToken wsp:Usage="wsp:Required">
+        <wsse:Username/>
+        <wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText"/>
+      </wsse:UsernameToken>
+    </wsse:SecurityToken>
+  </wsp:Policy>
+
   <service name="BooksPortService">
-    <documentation>Catalog Service for GlobalBooks SOA System</documentation>
+    <documentation>Catalog Service for GlobalBooks SOA System - Secured with WS-Security Username Token</documentation>
     <port name="BooksPortSoap11" binding="tns:BooksPortSoap11">
-      <soap:address location="http://localhost:8085/ws"/>
+      <soap:address location="http://localhost:8085/ws/catalog"/>
     </port>
   </service>
 

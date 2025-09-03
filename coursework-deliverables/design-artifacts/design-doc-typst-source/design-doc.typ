@@ -90,8 +90,9 @@ Monolith → Six Autonomous Services:
 *Service Configuration:*
 - *Target Namespace:* `http://globalbooks.com/catalog`
 - *Operation:* `getBookDetails` 
-- *Endpoint:* `http://localhost:8085/ws`
-- *WSDL Location:* `http://localhost:8085/ws/books.wsdl`
+- *Endpoint:* `http://localhost:8085/ws/catalog`
+- *WSDL Location:* `http://localhost:8085/ws/catalog.wsdl`
+- *Security:* WS-Security Username Token required
 
 *Design Artifacts:*
 - `design-artifacts/catalog-service.wsdl` - Complete WSDL definition for catalog service
@@ -437,36 +438,71 @@ public void processOrder(Map orderData) {
 
 = Task 12: WS-Security Configuration
 
-== Current Implementation Status
+== WS-Security Implementation Status
 
-*Reality Check:*
-WS-Security NOT implemented due to time constraints.
+*Implementation Complete:*
+WS-Security successfully implemented with Username Token authentication.
 
 *Current SOAP Security:*
-- Development mode with hardcoded "SOAP-CLIENT-TOKEN"
-- No WS-Security header processing
-- Direct endpoint access without authentication
+- WSS4J2 interceptors for SOAP endpoint security
+- Username Token authentication with password validation
+- Service-specific credentials for catalog and order services
+- WS-Security header processing mandatory for SOAP requests
 
-*Planned Implementation:*
-```xml
-<!-- Would require WSS4J configuration -->
-<wsse:Security soap:mustUnderstand="true">
-    <wsse:UsernameToken>
-        <wsse:Username>service_client</wsse:Username>
-        <wsse:Password Type="PasswordDigest">hash</wsse:Password>
-    </wsse:UsernameToken>
-</wsse:Security>
+== WS-Security Architecture
+
+*Security Interceptor Implementation:*
+```java
+// Catalog Service Security
+@Component 
+public class CatalogSecurityInterceptor extends Wss4jSecurityInterceptor {
+    private static final String SOAP_USERNAME = "catalog-client";
+    private static final String SOAP_PASSWORD = "catalog-secure-2024";
+    
+    public CatalogSecurityInterceptor() {
+        setValidationActions("UsernameToken");
+        // Configure password validation callback handler
+    }
+}
 ```
 
-*Technical Requirements for Future:*
-- Apache WSS4J dependencies
-- Callback handlers for authentication
-- Policy configuration
-- Certificate management
+*SOAP Header Requirement:*
+```xml
+<soap:Header>
+    <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+        <wsse:UsernameToken>
+            <wsse:Username>catalog-client</wsse:Username>
+            <wsse:Password Type="PasswordText">catalog-secure-2024</wsse:Password>
+        </wsse:UsernameToken>
+    </wsse:Security>
+</soap:Header>
+```
 
-*Justification:*
-- WS-Security complexity beyond available timeframe
-- Core SOA functionality prioritized
+== Service-Specific Credentials
+
+*Catalog Service (Port 8085):*
+- Endpoint: `/ws/catalog`
+- Username: `catalog-client`
+- Password: `catalog-secure-2024`
+
+*Order Orchestration Service (Port 8086):*
+- Endpoint: `/ws/order-process`
+- Username: `order-client`
+- Password: `order-secure-2024`
+
+== WS-Security Policy in WSDL
+
+*Policy Definition:*
+- Username Token required for all SOAP operations
+- Password type: PasswordText (development configuration)
+- WS-Policy references included in service bindings
+- Security constraints documented in WSDL policy sections
+
+*Technical Implementation:*
+- Spring WS Security integration
+- WSS4J2 library for standards compliance
+- SimplePasswordValidationCallbackHandler for credential validation
+- Service-specific interceptor configuration
 
 = Task 13: Authentication Implementation for Order Services
 

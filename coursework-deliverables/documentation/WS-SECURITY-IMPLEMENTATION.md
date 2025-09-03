@@ -1,19 +1,45 @@
-# Catalog Service SOAP Clients with WS-Security
+# WS-Security Implementation Guide
 
-## 🔐 **WS-Security Credentials**
+## Overview
+
+This document describes the WS-Security implementation for GlobalBooks SOA system SOAP endpoints. The implementation uses Username Token authentication with WSS4J2 interceptors to secure SOAP web services.
+
+## Architecture
+
+### Dual Authentication Model
+
+The GlobalBooks SOA system implements a dual authentication model:
+
+- **REST Endpoints**: JWT Bearer Token authentication
+- **SOAP Endpoints**: WS-Security Username Token authentication
+
+This separation allows for protocol-appropriate security mechanisms while maintaining clean architectural boundaries.
+
+## Service Credentials
+
+### Catalog Service
+- **Endpoint**: `http://localhost:8085/ws/catalog`
 - **Username**: `catalog-client`
 - **Password**: `catalog-secure-2024`
+- **WSDL**: `http://localhost:8085/ws/catalog.wsdl`
+
+### Order Orchestration Service
+- **Endpoint**: `http://localhost:8086/ws/order-process`
+- **Username**: `order-client`
+- **Password**: `order-secure-2024`
+- **WSDL**: `http://localhost:8086/ws/order-process.wsdl`
+
+## 🔐 **WS-Security Credentials**
 - **Password Type**: `PasswordText`
 
 ## 📞 **SOAP Request Examples**
 
-### **✅ Secure SOAP Request (With WS-Security)**
+### **✅ Catalog Service SOAP Request (With WS-Security)**
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
-<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" 
-               xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
     <soap:Header>
-        <wsse:Security>
+        <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
             <wsse:UsernameToken>
                 <wsse:Username>catalog-client</wsse:Username>
                 <wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">catalog-secure-2024</wsse:Password>
@@ -24,6 +50,28 @@
         <getBookDetailsRequest xmlns="http://globalbooks.com/catalog">
             <id>1</id>
         </getBookDetailsRequest>
+    </soap:Body>
+</soap:Envelope>
+```
+
+### **✅ Order Orchestration SOAP Request (With WS-Security)**
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Header>
+        <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+            <wsse:UsernameToken>
+                <wsse:Username>order-client</wsse:Username>
+                <wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">order-secure-2024</wsse:Password>
+            </wsse:UsernameToken>
+        </wsse:Security>
+    </soap:Header>
+    <soap:Body>
+        <ProcessOrderRequest xmlns="http://globalbooks.com/orders">
+            <customerId>testuser</customerId>
+            <bookId>1</bookId>
+            <quantity>2</quantity>
+        </ProcessOrderRequest>
     </soap:Body>
 </soap:Envelope>
 ```
@@ -42,13 +90,51 @@
 
 ## 🌐 **cURL Examples**
 
-### **Secure SOAP Call**
+### **Catalog Service cURL**
 ```bash
-curl -X POST http://localhost:8085/ws \
+curl -X POST http://localhost:8085/ws/catalog \
   -H "Content-Type: text/xml; charset=utf-8" \
-  -H "SOAPAction:" \
   -d '<?xml version="1.0" encoding="UTF-8"?>
-<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" 
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Header>
+        <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+            <wsse:UsernameToken>
+                <wsse:Username>catalog-client</wsse:Username>
+                <wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">catalog-secure-2024</wsse:Password>
+            </wsse:UsernameToken>
+        </wsse:Security>
+    </soap:Header>
+    <soap:Body>
+        <getBookDetailsRequest xmlns="http://globalbooks.com/catalog">
+            <id>1</id>
+        </getBookDetailsRequest>
+    </soap:Body>
+</soap:Envelope>'
+```
+
+### **Order Orchestration cURL**
+```bash
+curl -X POST http://localhost:8086/ws/order-process \
+  -H "Content-Type: text/xml; charset=utf-8" \
+  -d '<?xml version="1.0" encoding="UTF-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Header>
+        <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+            <wsse:UsernameToken>
+                <wsse:Username>order-client</wsse:Username>
+                <wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">order-secure-2024</wsse:Password>
+            </wsse:UsernameToken>
+        </wsse:Security>
+    </soap:Header>
+    <soap:Body>
+        <ProcessOrderRequest xmlns="http://globalbooks.com/orders">
+            <customerId>testuser</customerId>
+            <bookId>1</bookId>
+            <quantity>2</quantity>
+        </ProcessOrderRequest>
+    </soap:Body>
+</soap:Envelope>'
+```
                xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
     <soap:Header>
         <wsse:Security>

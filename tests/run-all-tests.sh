@@ -31,8 +31,8 @@ if [ ! -f "$SCRIPT_DIR/test-3-soap-order.sh" ]; then
     exit 1
 fi
 
-if [ ! -f "$SCRIPT_DIR/test-4-catalog-service.sh" ]; then
-    echo "❌ Error: test-4-catalog-service.sh not found"
+if [ ! -f "$SCRIPT_DIR/test-4-catalog-ws-security.sh" ]; then
+    echo "❌ Error: test-4-catalog-ws-security.sh not found"
     exit 1
 fi
 
@@ -90,14 +90,14 @@ echo "⏳ Waiting 3 seconds before next test..."
 sleep 3
 echo
 
-# Test 4: Catalog Service Direct Testing
-echo "🔵 Starting Test 4: Catalog Service Direct Testing"
+# Test 4: Catalog WS-Security Testing
+echo "🔵 Starting Test 4: Catalog WS-Security Testing"
 echo "================================================"
-if "$SCRIPT_DIR/test-4-catalog-service.sh"; then
-    echo "✅ Test 4 Passed: Catalog Service Direct Testing"
+if "$SCRIPT_DIR/test-4-catalog-ws-security.sh"; then
+    echo "✅ Test 4 Passed: Catalog WS-Security Testing"
     TEST4_RESULT="PASSED"
 else
-    echo "❌ Test 4 Failed: Catalog Service Direct Testing"
+    echo "❌ Test 4 Failed: Catalog WS-Security Testing"
     TEST4_RESULT="FAILED"
 fi
 echo
@@ -112,7 +112,7 @@ echo "Test Results:"
 echo "   1. User Creation & Auth:    $TEST1_RESULT"
 echo "   2. REST Order Processing:   $TEST2_RESULT"
 echo "   3. SOAP Order Processing:   $TEST3_RESULT"
-echo "   4. Catalog Service Direct:  $TEST4_RESULT"
+echo "   4. Catalog WS-Security:     $TEST4_RESULT"
 echo
 
 # Overall result
@@ -122,10 +122,11 @@ if [ "$TEST1_RESULT" = "PASSED" ] && [ "$TEST2_RESULT" = "PASSED" ] && [ "$TEST3
     echo "✅ System Capabilities Validated:"
     echo "   • User registration and authentication"
     echo "   • JWT token generation and validation"
-    echo "   • REST API order processing"
-    echo "   • SOAP web service order processing"
-    echo "   • Direct catalog service REST API"
-    echo "   • Direct catalog service SOAP web service"
+    echo "   • REST API order processing with JWT"
+    echo "   • SOAP web service order processing with WS-Security"
+    echo "   • Catalog service REST API (clean state - no JWT)"
+    echo "   • Catalog service SOAP with WS-Security"
+    echo "   • Dual authentication model (JWT for REST, WS-Security for SOAP)"
     echo "   • Microservices orchestration"
     echo "   • Queue-based asynchronous processing"
     echo

@@ -11,8 +11,8 @@ echo
 # Configuration
 AUTH_SERVER_URL="http://localhost:8081"
 ORCHESTRATION_URL="http://localhost:8086"
-USERNAME="chamal1120"
-PASSWORD="password"
+USERNAME="testuser"
+PASSWORD="password123"
 
 echo "📋 Test Configuration:"
 echo "   Auth Server: $AUTH_SERVER_URL"
@@ -93,32 +93,15 @@ echo
 
 # Order payload
 ORDER_PAYLOAD='{
-    "customerId": "REST-TEST-USER-001",
+    "customerId": "testuser",
     "bookId": "1",
-    "quantity": 2,
-    "shippingAddress": {
-        "street": "123 Main Street",
-        "city": "New York",
-        "state": "NY",
-        "zipCode": "10001",
-        "country": "USA"
-    },
-    "paymentDetails": {
-        "cardNumber": "4111111111111111",
-        "expiryMonth": "12",
-        "expiryYear": "2025",
-        "cvv": "123",
-        "cardholderName": "Test User"
-    }
+    "quantity": 2
 }'
 
 echo "📋 Order Details:"
-echo "   Customer ID: REST-TEST-USER-001"
+echo "   Customer ID: testuser"
 echo "   Book ID: 1 (The Great Gatsby by F. Scott Fitzgerald)"
 echo "   Quantity: 2 copies"
-echo "   Shipping: 123 Main Street, New York, NY 10001, USA"
-echo "   Payment: Credit Card ending in 1111"
-echo "   Total Value: Approx $30.00 (2 × $15.00)"
 echo
 
 echo "🚀 Step 4: Sending REST order request..."

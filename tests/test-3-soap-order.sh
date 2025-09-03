@@ -9,8 +9,8 @@ echo "================================================"
 echo
 
 # Configuration
-SOAP_ENDPOINT_URL="http://localhost:8086/ws"
-WSDL_URL="http://localhost:8086/ws/orders.wsdl"
+SOAP_ENDPOINT_URL="http://localhost:8086/ws/order-process"
+WSDL_URL="http://localhost:8086/ws/order-process.wsdl"
 
 echo "📋 Test Configuration:"
 echo "   SOAP Endpoint: $SOAP_ENDPOINT_URL"
@@ -71,27 +71,33 @@ echo "   Protocol: HTTP POST with SOAP envelope"
 echo "   Content-Type: text/xml; charset=utf-8"
 echo
 
-# SOAP envelope
+# SOAP envelope with WS-Security
 SOAP_ENVELOPE='<?xml version="1.0" encoding="UTF-8"?>
-<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" 
-               xmlns:ord="http://globalbooks.com/orders">
-   <soap:Header/>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+   <soap:Header>
+      <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+         <wsse:UsernameToken>
+            <wsse:Username>order-client</wsse:Username>
+            <wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">order-secure-2024</wsse:Password>
+         </wsse:UsernameToken>
+      </wsse:Security>
+   </soap:Header>
    <soap:Body>
-      <ord:ProcessOrderRequest>
-         <ord:customerId>SOAP-CUSTOMER-001</ord:customerId>
-         <ord:bookId>2</ord:bookId>
-         <ord:quantity>3</ord:quantity>
-      </ord:ProcessOrderRequest>
+      <ProcessOrderRequest xmlns="http://globalbooks.com/orders">
+         <customerId>testuser</customerId>
+         <bookId>1</bookId>
+         <quantity>2</quantity>
+      </ProcessOrderRequest>
    </soap:Body>
 </soap:Envelope>'
 
 echo "📋 Order Details:"
-echo "   Customer ID: SOAP-CUSTOMER-001"
-echo "   Book ID: 2 (To Kill a Mockingbird by Harper Lee)"
-echo "   Quantity: 3 copies"
-echo "   Protocol: SOAP 1.1"
+echo "   Customer ID: testuser"
+echo "   Book ID: 1 (The Great Gatsby by F. Scott Fitzgerald)"
+echo "   Quantity: 2 copies"
+echo "   Protocol: SOAP 1.1 with WS-Security"
+echo "   Authentication: Username Token (order-client)"
 echo "   Namespace: http://globalbooks.com/orders"
-echo "   Estimated Value: Approx $45.00 (3 × $15.00)"
 echo
 
 echo "📤 Step 4: SOAP Request Envelope:"

@@ -80,7 +80,8 @@ graph TB
 - **JWT-based authentication** for REST endpoints with BCrypt password encoding
 - **Token-based authorization** with configurable expiration (10 hours default)
 - **User registration and authentication management** with H2 in-memory database
-- **SOAP endpoints** currently operate without authentication (development mode)
+- **WS-Security** for SOAP endpoints with Username Token authentication
+- **Dual authentication model** - JWT for REST, WS-Security for SOAP
 - **Spring Security** integration with stateless session management
 
 ### 📨 **Asynchronous Processing**
@@ -211,7 +212,7 @@ chmod +x tests/*.sh
 | Protocol | Security Status | Authentication Method | Details |
 |----------|----------------|----------------------|---------|
 | **REST APIs** | ✅ **Secured** | JWT Bearer Tokens | Spring Security + BCrypt |
-| **SOAP Services** | ⚠️ **Development Mode** | No Authentication | Hardcoded tokens for testing |
+| **SOAP Services** | ✅ **Secured** | WS-Security Username Token | WSS4J2 Interceptors |
 
 ### **JWT Authentication Flow**
 
@@ -257,11 +258,18 @@ sequenceDiagram
 - **Header**: `Authorization: Bearer <jwt_token>`
 - **Context**: `SecurityContextHolder` authentication
 
-#### **⚠️ SOAP Development Mode**
-- **Status**: Currently unsecured for development convenience
-- **Token**: Hardcoded "SOAP-CLIENT-TOKEN" for internal communication
-- **Access**: Direct SOAP endpoint access without authentication
-- **Future**: Planned WS-Security implementation with UsernameToken
+#### **🔐 SOAP WS-Security**
+- **Status**: Secured with Username Token authentication
+- **Credentials**: Service-specific hardcoded credentials for development
+- **Implementation**: WSS4J2 interceptors with password validation
+- **Access**: Requires valid Username/Password in SOAP header
+
+### **WS-Security Credentials**
+
+| Service | Endpoint | Username | Password |
+|---------|----------|----------|----------|
+| **Catalog Service** | `/ws/catalog` | `catalog-client` | `catalog-secure-2024` |
+| **Order Orchestration** | `/ws/order-process` | `order-client` | `order-secure-2024` |
 
 ### **Authentication Endpoints**
 
@@ -308,19 +316,23 @@ curl -X POST http://localhost:8086/api/orders/process \
     "quantity": 1
   }'
 
-# 4. Test SOAP endpoint
-curl -X POST http://localhost:8086/ws \
+# 4. Test SOAP endpoint with WS-Security
+curl -X POST http://localhost:8085/ws/catalog \
   -H "Content-Type: text/xml; charset=utf-8" \
-  -H "SOAPAction: \"\"" \
   -d '<?xml version="1.0" encoding="UTF-8"?>
-<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" 
-               xmlns:ord="http://globalbooks.com/orders">
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+   <soap:Header>
+      <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+         <wsse:UsernameToken>
+            <wsse:Username>catalog-client</wsse:Username>
+            <wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">catalog-secure-2024</wsse:Password>
+         </wsse:UsernameToken>
+      </wsse:Security>
+   </soap:Header>
    <soap:Body>
-      <ord:ProcessOrderRequest>
-         <ord:customerId>soap-customer</ord:customerId>
-         <ord:bookId>2</ord:bookId>
-         <ord:quantity>1</ord:quantity>
-      </ord:ProcessOrderRequest>
+      <getBookDetailsRequest xmlns="http://globalbooks.com/catalog">
+         <id>1</id>
+      </getBookDetailsRequest>
    </soap:Body>
 </soap:Envelope>'
 ```
@@ -333,8 +345,8 @@ curl -X POST http://localhost:8086/ws \
 - **[🧪 Test Suite Documentation](tests/README.md)** - Testing guide and automated test scripts
 
 ### **WSDL Documents**
-- **Catalog Service**: http://localhost:8085/ws/books.wsdl
-- **Order Orchestration**: http://localhost:8086/ws/orders.wsdl
+- **Catalog Service**: http://localhost:8085/ws/catalog.wsdl
+- **Order Orchestration**: http://localhost:8086/ws/order-process.wsdl
 
 ### **Management Interfaces**
 - **RabbitMQ Management**: http://localhost:15672 (guest/guest)

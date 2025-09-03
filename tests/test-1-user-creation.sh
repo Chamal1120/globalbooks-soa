@@ -10,8 +10,8 @@ echo
 
 # Configuration
 AUTH_SERVER_URL="http://localhost:8081"
-USERNAME="chamal1120"
-PASSWORD="password"
+USERNAME="testuser"
+PASSWORD="password123"
 
 echo "📋 Test Configuration:"
 echo "   Auth Server: $AUTH_SERVER_URL"

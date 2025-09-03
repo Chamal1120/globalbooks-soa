@@ -9,9 +9,9 @@ echo "================================================"
 echo
 echo "📋 Test Configuration:"
 echo "   Catalog Service: http://localhost:8085"
-echo "   REST Endpoint: /api/books/{id} (NO SECURITY - unchanged)"
-echo "   SOAP Endpoint: /ws (WS-SECURITY REQUIRED)"
-echo "   WSDL Location: /ws/books.wsdl"
+echo "   REST Endpoint: /api/books/{id} (NO SECURITY in clean state)"
+echo "   SOAP Endpoint: /ws/catalog (WS-SECURITY REQUIRED)"
+echo "   WSDL Location: /ws/catalog.wsdl"
 echo
 echo "🎯 Test Objective: Validate WS-Security implementation without breaking REST"
 echo
@@ -74,7 +74,7 @@ fi
 
 echo
 echo "🚫 Step 3: Testing SOAP without WS-Security (should FAIL)..."
-echo "   Request: POST $CATALOG_SERVICE/ws"
+echo "   Request: POST $CATALOG_SERVICE/ws/catalog"
 echo "   Method: SOAP/XML"
 echo "   Security: NONE (should be rejected)"
 
@@ -98,7 +98,7 @@ SOAP_INSECURE_RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}" \
     -H "Content-Type: text/xml; charset=utf-8" \
     -H "SOAPAction:" \
     -d "$SOAP_REQUEST_INSECURE" \
-    "$CATALOG_SERVICE/ws")
+    "$CATALOG_SERVICE/ws/catalog")
 
 SOAP_INSECURE_BODY=$(echo "$SOAP_INSECURE_RESPONSE" | sed '$d')
 SOAP_INSECURE_STATUS=$(echo "$SOAP_INSECURE_RESPONSE" | grep "HTTP_STATUS" | cut -d: -f2)
@@ -119,7 +119,7 @@ fi
 
 echo
 echo "🔐 Step 4: Testing SOAP with WS-Security (should SUCCEED)..."
-echo "   Request: POST $CATALOG_SERVICE/ws"
+echo "   Request: POST $CATALOG_SERVICE/ws/catalog"
 echo "   Method: SOAP/XML with WS-Security"
 echo "   Security: Username Token ($SOAP_USERNAME)"
 
@@ -152,7 +152,7 @@ SOAP_SECURE_RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}" \
     -H "Content-Type: text/xml; charset=utf-8" \
     -H "SOAPAction:" \
     -d "$SOAP_REQUEST_SECURE" \
-    "$CATALOG_SERVICE/ws")
+    "$CATALOG_SERVICE/ws/catalog")
 
 SOAP_SECURE_BODY=$(echo "$SOAP_SECURE_RESPONSE" | sed '$d')
 SOAP_SECURE_STATUS=$(echo "$SOAP_SECURE_RESPONSE" | grep "HTTP_STATUS" | cut -d: -f2)
@@ -209,9 +209,9 @@ fi
 
 echo
 echo "📄 Step 6: Testing WSDL Accessibility (should remain accessible)..."
-echo "   WSDL URL: $CATALOG_SERVICE/ws/books.wsdl"
+echo "   WSDL URL: $CATALOG_SERVICE/ws/catalog.wsdl"
 
-WSDL_RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}" "$CATALOG_SERVICE/ws/books.wsdl")
+WSDL_RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}" "$CATALOG_SERVICE/ws/catalog.wsdl")
 WSDL_BODY=$(echo "$WSDL_RESPONSE" | sed '$d')
 WSDL_STATUS=$(echo "$WSDL_RESPONSE" | grep "HTTP_STATUS" | cut -d: -f2)
 
@@ -245,8 +245,8 @@ fi
 
 echo
 echo "📊 Security Implementation Summary:"
-echo "   REST (/api/*): NO AUTHENTICATION (unchanged)"
-echo "   SOAP (/ws/*): WS-SECURITY REQUIRED (Username Token)"
+echo "   REST (/api/*): NO AUTHENTICATION (clean state - JWT removed)"
+echo "   SOAP (/ws/catalog): WS-SECURITY REQUIRED (Username Token)"
 echo "   WSDL: ACCESSIBLE (no authentication required)"
 echo "   Integration: Order Orchestration continues using REST"
 echo "----------------------------------------"

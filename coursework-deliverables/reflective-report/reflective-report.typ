@@ -67,7 +67,9 @@ Looking back, I wish I had:
 === SOAP Web Services
 Working with SOAP through Spring Web Services was initially challenging but incredibly educational. The catalog-service's contract-first approach taught me the value of defining clear service contracts upfront. Watching Spring automatically generate WSDL from my XSD schema felt like magic.
 
-The biggest lesson: SOAP's verbosity isn't just overhead - it's documentation and validation built into the service contract. When integration issues arose, having a well-defined schema saved hours of debugging.
+Implementing WS-Security with Username Token authentication added enterprise-grade security to SOAP endpoints. Learning to work with WSS4J2 interceptors and SOAP security headers deepened my understanding of web service security standards.
+
+The biggest lesson: SOAP's verbosity isn't just overhead - it's documentation, validation, and security built into the service contract. When integration issues arose, having well-defined schemas and security policies saved hours of debugging.
 
 === REST API Development
 Building REST APIs for the orders-service felt more natural and intuitive. The HTTP methods map nicely to business operations, and JSON responses are much easier to work with than XML.
@@ -85,9 +87,15 @@ The queue architecture solved a major problem: what happens when one service is 
 
 == Security Implementation
 
-Implementing JWT authentication across all services was trickier than expected, but the end result feels professional and secure. Using HS256 with 10-hour token expiration and BCrypt for passwords creates a solid security foundation without over-complicating things.
+Implementing a dual authentication model was one of the most challenging aspects of this project. The system uses JWT authentication for REST endpoints and WS-Security for SOAP services, creating a comprehensive security architecture.
 
-The stateless nature of JWT tokens means I don't need to manage session storage across multiple services - each service can validate tokens independently. This simplified the architecture significantly while maintaining strong security.
+*JWT Authentication:*
+Using HS256 with 10-hour token expiration and BCrypt for passwords creates a solid security foundation for REST services. The stateless nature of JWT tokens means services can validate tokens independently without requiring shared session storage.
+
+*WS-Security Implementation:*
+Adding WS-Security Username Token authentication to SOAP endpoints required integrating WSS4J2 interceptors with Spring Web Services. This implementation demonstrates enterprise-grade SOAP security standards while maintaining the clean separation between REST and SOAP authentication models.
+
+The dual approach shows how different protocols can coexist with appropriate security measures - JWT for modern REST APIs and WS-Security for enterprise SOAP integrations.
 
 = Development Process Insights
 
