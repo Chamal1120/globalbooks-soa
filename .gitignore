@@ -35,3 +35,5 @@ target/
 
 # Generated JAXB classes
 **/generated/
+# JAXB episode files (auto-generated)
+catalog-service/src/main/java/META-INF/JAXB/episode_xjc_*.xjb

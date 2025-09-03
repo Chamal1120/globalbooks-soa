@@ -77,9 +77,11 @@ graph TB
 - Contract-first SOAP development with WSDL and XSD schemas
 
 ### 🛡️ **Security & Authentication**
-- JWT-based authentication for REST endpoints
-- Secure token-based authorization
-- User registration and authentication management
+- **JWT-based authentication** for REST endpoints with BCrypt password encoding
+- **Token-based authorization** with configurable expiration (10 hours default)
+- **User registration and authentication management** with H2 in-memory database
+- **SOAP endpoints** currently operate without authentication (development mode)
+- **Spring Security** integration with stateless session management
 
 ### 📨 **Asynchronous Processing**
 - Event-driven architecture with RabbitMQ message broker
@@ -200,6 +202,84 @@ chmod +x tests/*.sh
 
 # Run complete test suite
 ./tests/run-all-tests.sh
+```
+
+## 🔐 Authentication Architecture
+
+### **Current Implementation Status**
+
+| Protocol | Security Status | Authentication Method | Details |
+|----------|----------------|----------------------|---------|
+| **REST APIs** | ✅ **Secured** | JWT Bearer Tokens | Spring Security + BCrypt |
+| **SOAP Services** | ⚠️ **Development Mode** | No Authentication | Hardcoded tokens for testing |
+
+### **JWT Authentication Flow**
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Auth as Auth Service<br/>(Port 8081)
+    participant API as Protected Service<br/>(8082-8086)
+    
+    Client->>Auth: POST /register<br/>{username, password}
+    Auth->>Auth: BCrypt encoding
+    Auth-->>Client: Registration success
+    
+    Client->>Auth: POST /authenticate<br/>{username, password}
+    Auth->>Auth: Validate credentials
+    Auth->>Auth: Generate JWT (HS256)
+    Auth-->>Client: {"jwt": "eyJhbGci..."}
+    
+    Client->>API: API Request<br/>Authorization: Bearer <token>
+    API->>API: JwtRequestFilter validation
+    API->>API: Extract username from token
+    API->>API: Check token expiration
+    API-->>Client: Protected resource response
+```
+
+### **Security Features**
+
+#### **🔒 JWT Token Security**
+- **Algorithm**: HS256 (HMAC with SHA-256)
+- **Secret Key**: Auto-generated `SecretKey` for signing
+- **Expiration**: 10 hours (36,000,000 ms)
+- **Claims**: Subject (username), issued-at, expiration
+- **Stateless**: No server-side session storage
+
+#### **🛡️ Password Security**
+- **Encoding**: BCrypt with Spring Security defaults
+- **Storage**: H2 in-memory database (development)
+- **Validation**: Username/password authentication manager
+
+#### **🔧 REST Endpoint Protection**
+- **Protected**: All endpoints except `/authenticate`, `/register`, `/health`
+- **Filter**: `JwtRequestFilter` extends `OncePerRequestFilter`
+- **Header**: `Authorization: Bearer <jwt_token>`
+- **Context**: `SecurityContextHolder` authentication
+
+#### **⚠️ SOAP Development Mode**
+- **Status**: Currently unsecured for development convenience
+- **Token**: Hardcoded "SOAP-CLIENT-TOKEN" for internal communication
+- **Access**: Direct SOAP endpoint access without authentication
+- **Future**: Planned WS-Security implementation with UsernameToken
+
+### **Authentication Endpoints**
+
+```bash
+# User Registration
+curl -X POST http://localhost:8081/register \
+  -H "Content-Type: application/json" \
+  -d '{"username": "newuser", "password": "securepass"}'
+
+# User Authentication  
+curl -X POST http://localhost:8081/authenticate \
+  -H "Content-Type: application/json" \
+  -d '{"username": "newuser", "password": "securepass"}'
+
+# Response format
+{
+  "jwt": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJuZXd1c2VyIiwiaWF0IjoxNzU2ODUxNDg3LCJleHAiOjE3NTY4ODc0ODd9.signature"
+}
 ```
 
 ## 🧪 Testing the System
